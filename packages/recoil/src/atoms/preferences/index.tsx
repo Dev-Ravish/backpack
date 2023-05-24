@@ -1,8 +1,4 @@
-import type {
-  AutolockSettings,
-  Blockchain,
-  Preferences,
-} from "@coral-xyz/common";
+import type { AutolockSettings, Preferences } from "@coral-xyz/common";
 import {
   BACKEND_API_URL,
   DEFAULT_AUTO_LOCK_INTERVAL_SECS,
@@ -20,6 +16,7 @@ import {
 } from "recoil";
 
 import { backgroundClient } from "../client";
+import { activeWallet } from "../wallet";
 
 export const preferences = atom<Preferences>({
   key: "preferences",
@@ -132,8 +129,9 @@ export const xnftJwt = atomFamily({
     key: "xnftJwtDefault",
     get:
       ({ xnftAddress }: { xnftAddress: string }) =>
-      async (): Promise<string> => {
+      async ({ get }): Promise<string> => {
         try {
+          get(activeWallet); // force refresh when the active wallet changes
           const response = await fetch(
             `${BACKEND_API_URL}/users/jwt/xnft?xnftAddress=${xnftAddress}`
           );
